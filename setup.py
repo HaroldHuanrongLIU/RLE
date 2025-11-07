@@ -3,11 +3,7 @@ import platform
 import subprocess
 import time
 
-import numpy as np
-from Cython.Build import cythonize
 from setuptools import Extension, find_packages, setup
-import torch
-from torch.utils.cpp_extension import BuildExtension, CUDAExtension, CppExtension
 
 MAJOR = 0
 MINOR = 1
@@ -86,6 +82,9 @@ def get_version():
 
 
 def make_cython_ext(name, module, sources):
+    import numpy as np
+    from Cython.Build import cythonize
+    
     extra_compile_args = None
     if platform.system() != 'Windows':
         extra_compile_args = {
@@ -103,6 +102,9 @@ def make_cython_ext(name, module, sources):
 
 
 def make_cuda_ext(name, module, sources, sources_cuda=[]):
+    import torch
+    from torch.utils.cpp_extension import BuildExtension, CUDAExtension, CppExtension
+    
     define_macros = []
     extra_compile_args = {'cxx': []}
 
@@ -133,7 +135,7 @@ def get_ext_modules():
 
 def get_install_requires():
     install_requires = [
-        'six', 'terminaltables', 'scipy==1.1.0',
+        'six', 'terminaltables', 'scipy>=1.5.0',
         'opencv-python', 'matplotlib', 'visdom',
         'tqdm', 'tensorboardx', 'easydict',
         'pyyaml',
@@ -153,6 +155,14 @@ def is_installed(package_name):
 
 if __name__ == '__main__':
     write_version_py()
+    
+    # Import BuildExtension only if ext_modules are needed
+    ext_modules = get_ext_modules()
+    cmdclass = {}
+    if ext_modules:
+        from torch.utils.cpp_extension import BuildExtension
+        cmdclass = {'build_ext': BuildExtension}
+    
     setup(
         name='rlepose',
         version=get_version(),
@@ -177,6 +187,6 @@ if __name__ == '__main__':
         setup_requires=['pytest-runner', 'numpy', 'cython'],
         tests_require=['pytest'],
         install_requires=get_install_requires(),
-        ext_modules=get_ext_modules(),
-        cmdclass={'build_ext': BuildExtension},
+        ext_modules=ext_modules,
+        cmdclass=cmdclass,
         zip_safe=False)
