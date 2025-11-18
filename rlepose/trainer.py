@@ -176,6 +176,7 @@ def validate_gt(m, opt, cfg, heatmap_to_coord, batch_size=20):
         gt_val_loader = tqdm(gt_val_loader, dynamic_ncols=True)
 
     for inps, labels, img_ids, bboxes in gt_val_loader:
+        # inps = inputs
         inps = inps.cuda()
         output = m(inps)
 

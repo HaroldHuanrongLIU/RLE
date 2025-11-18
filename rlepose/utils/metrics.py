@@ -13,6 +13,9 @@ from pycocotools.cocoeval import COCOeval
 class NullWriter(object):
     def write(self, arg):
         pass
+    
+    def flush(self):
+        pass
 
 
 class DataLogger(object):
@@ -83,6 +86,9 @@ def evaluate_mAP(res_file, ann_type='bbox', ann_file='person_keypoints_val2017.j
     """
     class NullWriter(object):
         def write(self, arg):
+            pass
+        
+        def flush(self):
             pass
 
     ann_file = os.path.join('./data/coco/annotations/', ann_file)
